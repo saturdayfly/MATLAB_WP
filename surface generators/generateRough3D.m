@@ -1,4 +1,4 @@
-function [X, Y, Z, attributes] = generateRough20modes(num_modes,num_point,varargin)
+function [X, Y, Z, attributes] = generateRough3D(num_modes,num_point,varargin)
 
 % q vector and amplitude
 [kx, ky] = meshgrid(-num_modes:num_modes); % modes grid
@@ -7,7 +7,7 @@ a = amp./sqrt(1+kx.^2+ky.^2);              % amplitudes grid with power law 1/|k
 
 % Phase data
 if ~isempty(varargin)                   %   phase data given as input
-    fh = reshape(varargin{1},2*num_modes+1,2*num_modes+1)'; %   load phase from .dat file
+    fh = reshape(varargin{1},2*num_modes+1,2*num_modes+1); %   load phase from .dat file
 else
     fh = rand(2*num_modes+1);                  % generate a random phase 0 < fh < 1
 end
