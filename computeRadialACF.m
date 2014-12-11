@@ -1,4 +1,4 @@
-function [R, rho] = computeRadialACF(X,Y,Z,drho,scaleType)
+function [Rxx, RxxRadial, rho] = computeRadialACF(X,Y,Z,drho,scaleType)
 %
 % Compute the radial autocorrelation function of a 3D surface.
 % STILL HAVE TO DOUBLE CHECK THE OUTPUT COMPARING WITH GWYDDION
@@ -17,9 +17,9 @@ function [R, rho] = computeRadialACF(X,Y,Z,drho,scaleType)
 %       none     : no scaling
 %
 % Returns :
-%   - R    : row vector containing the autocorrelation data
-%   - rho  : row vector containing the lag values
-%
+%   - Rxx       : 2D autocorrelation matrix with size 2M-1 by 2N-1
+%   - RxxRadial : radially averaged autocorrelation
+%   - rho       : row vector containing the lag values used for radial averaging
 
 [nrow,ncol] = size(Z);
 
@@ -27,7 +27,7 @@ function [R, rho] = computeRadialACF(X,Y,Z,drho,scaleType)
 % note: output is not normalized - see help for xcorr2
 
     hi = popup; watchon; drawnow;   % popup window during computation
-    C = xcorr2(Z);
+    Rxx = xcorr2(Z);
     watchoff; close(hi);            % close popup
 
 % Normalise the autocorrelation
@@ -37,25 +37,25 @@ function [R, rho] = computeRadialACF(X,Y,Z,drho,scaleType)
             % do nothing
         case'biased',
             % Scales the raw cross-correlation by 1/(M*N)
-            C = C/(nrow*ncol);
+            Rxx = Rxx/(nrow*ncol);
         case 'unbiased',
             % scales the raw auto-correlation by dividing each element by
             % the number of products A and B used to generate that element
             [M,N] = size(Z);
-            C = C./([1:M-1 M:-1:1]'*[1:N-1 N:-1:1]);
+            Rxx = Rxx./([1:M-1 M:-1:1]'*[1:N-1 N:-1:1]);
             % see www.mathworks.com/matlabcentral/newsreader/view_thread/59030
         case'coeff',
         % Normalizes the sequence so that the auto-correlations
         % at zero lag are identically 1.0.
-            C = C./max(C(:));
+            Rxx = Rxx./max(Rxx(:));
     end
 
 % Average the 4 quadrants (assume isotropic profile):
 
-    c1 = C(size(Z,1):end,size(Z,2):end);
-    c2 = C(size(Z,1):end,1:size(Z,2));      c2 = fliplr(c2);
-    c3 = C(1:size(Z,1),1:size(Z,2));        c3 = rot90(c3,2); %180° rotation
-    c4 = C(1:size(Z,1),size(Z,2):end);      c4 = flipud(c4);
+    c1 = Rxx(size(Z,1):end,size(Z,2):end);
+    c2 = Rxx(size(Z,1):end,1:size(Z,2));      c2 = fliplr(c2);
+    c3 = Rxx(1:size(Z,1),1:size(Z,2));        c3 = rot90(c3,2); %180° rotation
+    c4 = Rxx(1:size(Z,1),size(Z,2):end);      c4 = flipud(c4);
     Zcorr_cart = (c1+c2+c3+c4)/4; % averaging
 
 % Define lag grids and convert to polar coordinates
@@ -76,7 +76,7 @@ function [R, rho] = computeRadialACF(X,Y,Z,drho,scaleType)
 
 % Finally, compute the angular average
 
-    R       = nanmean(Zcorr_polar_int,2);
+    RxxRadial       = nanmean(Zcorr_polar_int,2);
     rho     = nanmean(RHO_int,2);
 
     function [hi] = popup
