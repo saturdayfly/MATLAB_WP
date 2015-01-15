@@ -1,5 +1,13 @@
 % Tests of ACF, FFT and PSD computation for a 1D signal
 
+% To do : test with manual computation of autocorrelation ?
+% use periodogram ?
+
+%read : 
+http://www.mathworks.com/matlabcentral/newsreader/view_thread/303332
+http://de.mathworks.com/help/signal/ug/psd-estimate-using-fft.html
+http://de.mathworks.com/help/signal/ug/spectral-analysis.html#f12-20709
+
 close all
 clc
 clear
@@ -20,7 +28,7 @@ fourier_image  = fftshift(fft(X,Lfft)/Lfft);
 PSDfromFFT = abs(fourier_image).^2;
 freq           = -Fsx/2:dfx:Fsx/2-dfx; % Frequency axis
 
-% Autocorrelation of sine signal
+% Autocorrelation of the signal
 Rxx = xcorr(X,'biased');
 lag = (-(L-1):1:(L-1))*dx;
 
