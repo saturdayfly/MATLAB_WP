@@ -43,12 +43,12 @@ addpath('surface generators/')
 
 % generate - custom
 %for this first load the phase data
-%{
-[X, Y, Zdata{1}, attributes] = generateRough20modes(20,400,phase);
-num_dataset = numel(Zdata);
-%}
 
-% To plot use : surf(X,Y,Zdata);
+[X, Y, Zdata{1}, attributes] = generateEggCartoonHexa(0.03,150,200);
+num_dataset = numel(Zdata);
+
+figure;
+surf(X,Y,Zdata{1}); axis equal;
 
 %% Part 2.1 : compute slope and curvature %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -72,6 +72,18 @@ end
 Z_map     = cell2mat(Zdata);
 slope_map = cell2mat(slope_data);
 curv_map  = cell2mat(curvature_data);
+
+% some stats
+
+fprintf('\n\nMain statistical properties of the pattern : \n')
+fprintf('mean(Z) = %f\n',mean(Z_map(:)));
+fprintf('rms roughness = %f\n',std(Z_map(:)));
+fprintf('peak-to-peak roughness = %f\n',range(Z_map(:)));
+fprintf('skewness = %f\n',skewness(Z_map(:)));
+fprintf('kurtosis = %f\n',kurtosis(Z_map(:)));
+fprintf('rms slope = %f\n',nanstd(slope_map(:)));
+fprintf('rms curvature = %f\n',nanstd(curv_map(:)));
+
 
 fprintf('Done.\n');
     
@@ -245,7 +257,7 @@ fprintf('Done\n');
 %% part 3.2 : Compute phase diagram  
 
 % parameters
-h_error     = 1e-5;
+h_error     = 1e-2;
 dh          = 1e-6;
 
 phase_diagram = computePhaseDiagram(data1,h_error,dh);
